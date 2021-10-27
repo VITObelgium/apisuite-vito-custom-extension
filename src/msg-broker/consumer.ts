@@ -2,44 +2,15 @@ import amqplib from 'amqplib'
 import log from '../log'
 import { routingKeys } from './types'
 import {
+  handleOrgCreateUpdate,
+  orgMetaToInternal,
+  validateOrgMessage,
+} from './organization'
+import {
   handleAppCreate,
-} from './handlers'
-import { App } from '../models/app'
-
-interface AppMeta {
-  id: string
-  name: string
-  description: string
-  shortDescription: string
-  logo: string
-  visibility: string
-  state: string
-  labels: string[]
-  org: {
-    id: string
-    name: string
-  }
-}
-
-interface AppMessage {
-  app_id: string
-  meta: AppMeta
-}
-
-const validateAppMessage = (msg: AppMessage): boolean => {
-  return !!(msg && msg.app_id && msg.meta)
-}
-
-const appMetaToInternal = (meta: AppMeta): App => ({
-  id: Number(meta.id),
-  name: meta.name,
-  shortDescription: meta.shortDescription,
-  description: meta.description,
-  logo: meta.logo,
-  publisherId: Number(meta.org.id),
-  publisherName: meta.org.name,
-  labels: meta.labels,
-})
+  validateAppMessage,
+  appMetaToInternal,
+} from './app'
 
 export const onMessage = (data: amqplib.ConsumeMessage | null): void => {
   if (!data || !data.fields || !data.fields.routingKey) {
@@ -56,7 +27,19 @@ export const onMessage = (data: amqplib.ConsumeMessage | null): void => {
           log.warn('could not update app', msg)
           break
         }
-        handleAppCreate(appMetaToInternal(msg.meta)).catch((err) => log.error(err))
+        handleAppCreate(appMetaToInternal(msg.meta))
+          .catch((err) => log.error(err))
+        break
+      }
+      case routingKeys.ORG_UPDATED:
+      case routingKeys.ORG_CREATED: {
+        if (!validateOrgMessage(msg)) {
+          log.warn('could not update organization', msg)
+          break
+        }
+        log.debug(msg)
+        handleOrgCreateUpdate(orgMetaToInternal(msg.meta))
+          .catch((err) => log.error(err))
         break
       }
     }

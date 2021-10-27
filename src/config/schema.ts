@@ -23,6 +23,12 @@ export const schema = {
     default: false,
     env: 'KNEX_DEBUG',
   },
+  etlURL: {
+    doc: 'ETL API URL',
+    format: String,
+    default: 'https://etl.proba-v-mep.esa.int',
+    env: 'ETL_API_URL',
+  },
   msgBroker: {
     url: {
       doc: 'APISuite Message Broker URL',

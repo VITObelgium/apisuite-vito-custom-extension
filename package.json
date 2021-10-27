@@ -14,8 +14,10 @@
     "amqplib": "0.8.0",
     "camelcase-keys": "7.0.0",
     "convict": "6.1.0",
+    "i18n-iso-countries": "^6.8.0",
     "knex": "0.95.6",
     "morgan": "1.10.0",
+    "node-fetch": "2.6.2",
     "pg": "8.6.0",
     "pino": "6.11.3"
   },
