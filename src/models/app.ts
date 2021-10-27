@@ -11,12 +11,7 @@ export interface App {
   labels: string[]
 }
 
-export interface AppUpdate {
-  name?: string
-  description?: string
-  shortDescription?: string
-  labels?: string[]
-}
+export type AppUpdate = Partial<App>
 
 const update = async (trx: OptTransaction, id: number | string, app: AppUpdate): Promise<App> => {
   const _db = trx ? trx : db
