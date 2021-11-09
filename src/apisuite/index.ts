@@ -1,7 +1,7 @@
 import config from '../config'
 import fetch from 'node-fetch'
 import log from '../log'
-import {Organization} from "../models/organization";
+import { Organization } from '../models/organization'
 
 
 /**
@@ -9,8 +9,8 @@ import {Organization} from "../models/organization";
  * @param name - Name of the organisation
  */
 export const createOrganisation = async (name: string): Promise<Organization | null> => {
-    const url = new URL(`/organizations`, config.get('apisuite.url'));
-    const body = JSON.stringify({name});
+    const url = new URL('/organizations', config.get('apisuite.url'))
+    const body = JSON.stringify({ name })
 
     try {
         const response = await fetch(url.toString(), {

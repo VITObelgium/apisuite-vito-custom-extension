@@ -1,4 +1,4 @@
-import {db, OptTransaction} from '../db'
+import { db, OptTransaction } from '../db'
 
 export interface User {
     id: number

@@ -1,5 +1,5 @@
-import {db, OptTransaction} from '../db'
-import config from "../config";
+import { db, OptTransaction } from '../db'
+import config from '../config'
 
 export interface Organization {
     id: number

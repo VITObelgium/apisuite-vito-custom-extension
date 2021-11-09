@@ -1,9 +1,9 @@
 import amqplib from 'amqplib'
 import log from '../log'
-import {routingKeys} from './types'
-import {handleOrgCreateUpdate, orgMetaToInternal, validateOrgMessage} from './organization'
-import {appMetaToInternal, handleAppCreate, validateAppMessage} from './app'
-import {handleUserCreateOrgCreation, userMessageToInternal, validateUserMessage} from "./user";
+import { routingKeys } from './types'
+import { handleOrgCreateUpdate, orgMetaToInternal, validateOrgMessage } from './organization'
+import { appMetaToInternal, handleAppCreate, validateAppMessage } from './app'
+import { handleUserCreateOrgCreation, userMessageToInternal, validateUserMessage } from './user'
 
 export const onMessage = (data: amqplib.ConsumeMessage | null): void => {
     if (!data || !data.fields || !data.fields.routingKey) {
