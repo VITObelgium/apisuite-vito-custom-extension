@@ -1,6 +1,6 @@
 import { db } from '../db'
 import { getAlpha2Code } from 'i18n-iso-countries'
-import { Organization, update, getAddress } from '../models/organization'
+import { getAddress, Organization, update } from '../models/organization'
 import { getVatApplicable } from '../etl'
 
 interface OrganizationMeta {
@@ -40,7 +40,7 @@ export const handleOrgCreateUpdate = async (org: Organization): Promise<void> =>
       return
     }
 
-    const countryCode = getAlpha2Code(address.country, "en")
+    const countryCode = getAlpha2Code(address.country, 'en')
     if (!countryCode) {
       await trx.commit()
       return

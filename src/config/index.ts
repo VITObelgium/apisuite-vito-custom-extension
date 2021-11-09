@@ -1,6 +1,6 @@
 import convict from 'convict'
 import { schema } from './schema'
-import {config} from "dotenv";
+import { config } from 'dotenv'
 
-config();
+config()
 export default convict(schema)
