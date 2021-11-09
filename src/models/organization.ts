@@ -1,5 +1,4 @@
 import { db, OptTransaction } from '../db'
-import config from '../config'
 
 export interface Organization {
     id: number
@@ -47,23 +46,26 @@ const getAddress = async (trx: OptTransaction, id: number | string): Promise<Add
 }
 
 /**
- * Update the owner of an organisation that is created by the admin
+ * Link a user as the organisation owner to an existing organisation
  * @param trx - Active transaction details
  * @param orgId - ID of the organisation to update
- * @param ownerId - User ID of the new owner for the organisation
+ * @param userId - User ID of the new owner for the organisation
  */
-const updateAdminOrgOwner = async (trx: OptTransaction, orgId: number, ownerId: number): Promise<void> => {
+const linkOrganisationToUser = async (trx: OptTransaction, orgId: number, userId: number): Promise<void> => {
     const _db = trx ? trx : db
     await _db('user_organization')
-        .update('user_id', ownerId)
-        .update('current_org', 'true')
-        .where('org_id', orgId)
-        .andWhere('role_id', 4)
-        .andWhere('user_id', config.get('apisuite.adminId'))
+        .insert({
+            'user_id': userId,
+            'org_id': orgId,
+            'role_id': 4,
+            'current_org': true,
+            'created_at': new Date().toISOString(),
+            'updated_at': new Date().toISOString(),
+        })
 }
 
 export {
     update,
     getAddress,
-    updateAdminOrgOwner,
+    linkOrganisationToUser,
 }

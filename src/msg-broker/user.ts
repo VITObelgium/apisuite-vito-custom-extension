@@ -1,7 +1,7 @@
 import { db } from '../db'
 import { getUserInfo, User, UserInfo } from '../models/user'
-import { Organization, updateAdminOrgOwner } from '../models/organization'
-import { createOrganisation } from '../apisuite'
+import { linkOrganisationToUser, Organization } from '../models/organization'
+import { createOrganisation, deleteOrganisation } from '../apisuite'
 import log from '../log'
 
 
@@ -19,30 +19,31 @@ export const userMessageToInternal = (msg: UserMessage): User => ({
 
 export const handleUserCreateOrgCreation = async (user: User): Promise<void> => {
     const trx = await db.transaction()
+    let organisation: Organization | null = null
 
     try {
         // Get the user information based on the incoming message
         const userInfo: UserInfo | null = await getUserInfo(trx, user.id)
         if (!userInfo) {
-            log.error(`Could not find user ${user.id}`)
-            await trx.commit()
-            return
+            throw new Error(`Could not find user ${user.id}`)
         }
 
         // Create organisation based on the user's email address
-        const organisation: Organization | null = await createOrganisation(`${userInfo.email}`)
+        organisation = await createOrganisation(userInfo.email)
         if (!organisation) {
-            log.error(`Could not create organisation for user ${userInfo.id}`)
-            await trx.commit()
-            return
+            throw new Error(`Could not create organisation for user ${userInfo.id}`)
         }
 
         // Update organisation to set the user as organisation owner
-        await updateAdminOrgOwner(trx, organisation.id, user.id)
+        await linkOrganisationToUser(trx, organisation.id, user.id)
 
         await trx.commit()
     } catch (err) {
         log.error(`Error when handling message for automatic creation of organisation for user ${user.id} - ${err}`)
+        if (organisation) {
+            log.debug(`Cleaning up organisation ${organisation.id}`)
+            await deleteOrganisation(organisation.id)
+        }
         await trx.rollback()
     }
 }

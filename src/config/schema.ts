@@ -42,12 +42,6 @@ export const schema = {
             default: '',
             env: 'APISUITE_API_KEY',
         },
-        adminId: {
-            doc: 'APISuite admin user ID',
-            format: String,
-            default: '',
-            env: 'APISUITE_ADMIN_UID',
-        },
     },
     msgBroker: {
         url: {
