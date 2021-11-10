@@ -46,18 +46,40 @@ const getAddress = async (trx: OptTransaction, id: number | string): Promise<Add
 }
 
 /**
- * Link a user as the organisation owner to an existing organisation
+ * Retrieve the role id from the database based on its name
+ * @param trx - Active transaction details
+ * @param name - Name of the role
+ */
+const getRoleID = async (trx: OptTransaction, name: string): Promise<number | null> => {
+    const _db = trx ? trx : db
+
+    const rows = await _db
+        .select('id')
+        .from('role')
+        .where('name', name)
+
+    if (rows.length) {
+        return rows[0].id
+    }
+    return null
+}
+
+
+/**
+ * Link a user to an existing organisation
  * @param trx - Active transaction details
  * @param orgId - ID of the organisation to update
  * @param userId - User ID of the new owner for the organisation
+ * @param roleId - ID of the role to assign to the user
  */
-const linkOrganisationToUser = async (trx: OptTransaction, orgId: number, userId: number): Promise<void> => {
+const linkUserToOrganisation = async (trx: OptTransaction, orgId: number, userId: number, roleId: number): Promise<void> => {
     const _db = trx ? trx : db
+
     await _db('user_organization')
         .insert({
             'user_id': userId,
             'org_id': orgId,
-            'role_id': 4,
+            'role_id': roleId,
             'current_org': true,
             'created_at': new Date().toISOString(),
             'updated_at': new Date().toISOString(),
@@ -67,5 +89,6 @@ const linkOrganisationToUser = async (trx: OptTransaction, orgId: number, userId
 export {
     update,
     getAddress,
-    linkOrganisationToUser,
+    getRoleID,
+    linkUserToOrganisation,
 }

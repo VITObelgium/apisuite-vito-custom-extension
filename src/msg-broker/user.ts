@@ -1,6 +1,6 @@
 import { db } from '../db'
 import { getUserInfo, User, UserInfo } from '../models/user'
-import { linkOrganisationToUser, Organization } from '../models/organization'
+import { getRoleID, linkUserToOrganisation, Organization } from '../models/organization'
 import { createOrganisation, deleteOrganisation } from '../apisuite'
 import log from '../log'
 
@@ -34,8 +34,14 @@ export const handleUserCreateOrgCreation = async (user: User): Promise<void> => 
             throw new Error(`Could not create organisation for user ${userInfo.id}`)
         }
 
+        // Retrieve the role ID for the organisation owner
+        const roleId: number | null = await getRoleID(trx, 'organizationOwner')
+        if (!roleId) {
+            throw new Error('Could not find organizationOwner role ID')
+        }
+
         // Update organisation to set the user as organisation owner
-        await linkOrganisationToUser(trx, organisation.id, user.id)
+        await linkUserToOrganisation(trx, organisation.id, user.id, roleId)
 
         await trx.commit()
     } catch (err) {
