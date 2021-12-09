@@ -34,6 +34,7 @@ export const onMessage = (data: amqplib.ConsumeMessage | null): void => {
                     .catch((err) => log.error(err))
                 break
             }
+            case routingKeys.PYTHON_USER_CREATE_ORG:
             case routingKeys.USER_CREATED: {
                 if (!validateUserMessage(msg)) {
                     log.warn('could not validate user message', msg)
