@@ -98,8 +98,7 @@ for user in users:
         if count == 0:
             print(f'Creating new organisation for {user["username"]}')
             create_user_organisation(channel, marketplace_user['id'])
-
-else:
-    print(f'User {user["username"]} {user["id"]} does not exist!')
+    else:
+        print(f'User {user["username"]} {user["id"]} does not exist!')
 
 close_db_connection(db)
