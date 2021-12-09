@@ -102,3 +102,4 @@ for user in users:
         print(f'User {user["username"]} {user["id"]} does not exist!')
 
 close_db_connection(db)
+close_message_queue_connection(mq)
