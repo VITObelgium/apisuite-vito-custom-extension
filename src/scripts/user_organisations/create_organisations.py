@@ -75,12 +75,12 @@ def create_user_organisation(channel, uid):
                           }))
 
 
+token = get_keycloak_token()
+users = get_keycloak_users(token)
+
 db = get_db_connection()
 mq = get_message_queue_connection()
 channel = get_message_queue_channel(mq)
-
-token = get_keycloak_token()
-users = get_keycloak_users(token)
 
 for user in users:
     marketplace_user = get_marketplace_user(user['id'])
