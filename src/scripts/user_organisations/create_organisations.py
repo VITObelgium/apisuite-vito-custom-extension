@@ -1,48 +1,39 @@
 import json
+import os
 
 import pika as pika
 import psycopg2
 import requests
+from dotenv import load_dotenv
 
-KEYCLOAK_AUTH_URL = 'https://sso-int.vgt.vito.be/auth'
-KEYCLOAK_CLIENT_ID = 'mep-etl'
-KEYCLOAK_CLIENT_SECRET = '0441ca84-f92a-40b0-aa18-ad1d695dfeea'
-
-APISUITE_URL = 'https://apisuite-dev.terrascope.be'
-APISUITE_TOKEN = '2_16cfc749f97033c143fa3f93151fd2a5697bbef3'
-
-DB_URI = 'postgres://mep_apisuite_dev:api567$Z@postgresqldmzdev.services.rscloud.vito.be:5432/mep_apisuite_dev?sslmode=disable'
-
-MQ_USERNAME = 'apisuite'
-MQ_PASSWORD = '5155ef6534cc7ed732288166e02aadd5'
-MQ_EXCHANGE = 'apisuite_events_dev'
+load_dotenv()
 
 
 def get_keycloak_token():
-    resp = requests.post(f'{KEYCLOAK_AUTH_URL}/realms/terrascope/protocol/openid-connect/token', data={
+    resp = requests.post(f'{os.getenv("KEYCLOAK_AUTH_URL")}/realms/terrascope/protocol/openid-connect/token', data={
         'grant_type': 'client_credentials',
-        'client_id': KEYCLOAK_CLIENT_ID,
-        'client_secret': KEYCLOAK_CLIENT_SECRET
+        'client_id': os.getenv("KEYCLOAK_CLIENT_ID"),
+        'client_secret': os.getenv("KEYCLOAK_CLIENT_SECRET")
     })
     return resp.json()['access_token']
 
 
 def get_keycloak_users(token):
-    resp = requests.get(f'{KEYCLOAK_AUTH_URL}/admin/realms/terrascope/users?max=20000', headers={
+    resp = requests.get(f'{os.getenv("KEYCLOAK_AUTH_URL")}/admin/realms/terrascope/users?max=20000', headers={
         'Authorization': f'Bearer {token}'
     })
     return resp.json()
 
 
 def get_marketplace_user(uid):
-    resp = requests.get(f'{APISUITE_URL}/users/{uid}?oidc=true', headers={
-        'Authorization': f'Bearer {APISUITE_TOKEN}'
+    resp = requests.get(f'{os.getenv("APISUITE_URL")}/users/{uid}?oidc=true', headers={
+        'Authorization': f'Bearer {os.getenv("APISUITE_TOKEN")}'
     })
     return resp.json() if resp.status_code == 200 else None
 
 
 def get_db_connection():
-    return psycopg2.connect(DB_URI)
+    return psycopg2.connect(os.getenv("DB_URI"))
 
 
 def close_db_connection(db):
@@ -62,7 +53,7 @@ def get_user_organisation_count(conn, uid):
 
 
 def get_message_queue_connection():
-    credentials = pika.PlainCredentials(MQ_USERNAME, MQ_PASSWORD)
+    credentials = pika.PlainCredentials(os.getenv("MQ_USERNAME"), os.getenv("MQ_PASSWORD"))
     return pika.BlockingConnection(pika.ConnectionParameters('localhost', 5672, '/', credentials))
 
 
@@ -77,7 +68,7 @@ def close_message_queue_connection(connection):
 
 
 def create_user_organisation(channel, uid):
-    channel.basic_publish(exchange=MQ_EXCHANGE,
+    channel.basic_publish(exchange=os.getenv("MQ_EXCHANGE"),
                           routing_key='python.user.create_org',
                           body=json.dumps({
                               'user_id': uid
