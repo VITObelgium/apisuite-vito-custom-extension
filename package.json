@@ -1,6 +1,6 @@
 {
   "name": "vito-custom-extension",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "scripts": {
     "consumer": "ts-node dist/src/msg-broker/index.js",
