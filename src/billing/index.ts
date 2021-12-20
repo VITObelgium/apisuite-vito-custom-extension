@@ -43,6 +43,10 @@ export const assignBillingOrganisation = async (userId: number, orgId: number): 
     try {
         const response = await fetch(url.toString(), {
             method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${config.get('apisuite.apiKey')}`,
+                'Content-Type': 'application/json',
+            },
         })
         if (!response || response.status !== 204) {
             return null
