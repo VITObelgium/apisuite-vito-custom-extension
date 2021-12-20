@@ -19,6 +19,10 @@ export const createBillingOrganisation = async (org: Organization): Promise<Bill
     try {
         const response = await fetch(url.toString(), {
             method: 'POST',
+            headers: {
+                Authorization: `Bearer ${config.get('apisuite.apiKey')}`,
+                'Content-Type': 'application/json',
+            },
             body,
         })
         if (!response || response.status !== 201) {
