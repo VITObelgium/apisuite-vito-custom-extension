@@ -3,6 +3,8 @@ import { getUserInfo, User, UserInfo } from '../models/user'
 import { getRoleID, linkUserToOrganisation, Organization } from '../models/organization'
 import { createOrganisation, deleteOrganisation } from '../apisuite'
 import log from '../log'
+import { assignBillingOrganisation, createBillingOrganisation } from '../billing'
+import { BillingOrganization } from '../models/billingorganization'
 
 
 interface UserMessage {
@@ -42,6 +44,18 @@ export const handleUserCreateOrgCreation = async (user: User): Promise<void> => 
 
         // Update organisation to set the user as organisation owner
         await linkUserToOrganisation(trx, organisation.id, user.id, roleId)
+
+        // Create billing organisation
+        const billingOrganisation: BillingOrganization | null = await createBillingOrganisation(organisation)
+        if (!billingOrganisation) {
+            throw new Error(`Could not create billing organisation ${organisation.id}`)
+        }
+
+        // Set the user's billing organisation to the new organisation
+        const orgId: number | null = await assignBillingOrganisation(user.id, organisation.id)
+        if (!orgId) {
+            throw new Error(`Could not set active billing organisation of user ${user.id} to ${organisation.id}`)
+        }
 
         await trx.commit()
     } catch (err) {
