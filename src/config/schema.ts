@@ -43,6 +43,20 @@ export const schema = {
             env: 'APISUITE_API_KEY',
         },
     },
+    billing: {
+        url: {
+            doc: 'APISuite Billing API URL',
+            format: String,
+            default: 'https://billing-dev.proba-v-mep.esa.int',
+            env: 'APISUITE_BILLING_URL',
+        },
+        defaultCredits: {
+            doc: 'Default organisation credits',
+            format: Number,
+            default: 1000,
+            env: 'APISUITE_BILLING_ORG_CREDITS',
+        },
+    },
     msgBroker: {
         url: {
             doc: 'APISuite Message Broker URL',
