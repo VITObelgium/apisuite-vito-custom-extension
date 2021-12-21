@@ -79,18 +79,18 @@ token = get_keycloak_token()
 users = get_keycloak_users(token)
 
 db = get_db_connection()
-mq = get_message_queue_connection()
-channel = get_message_queue_channel(mq)
 
 for user in users:
     marketplace_user = get_marketplace_user(user['id'])
     if marketplace_user:
         count = get_user_organisation_count(db, marketplace_user['id'])
         if count == 0:
+            mq = get_message_queue_connection()
+            channel = get_message_queue_channel(mq)
             print(f'Creating new organisation for {user["username"]}')
             create_user_organisation(channel, marketplace_user['id'])
+            close_message_queue_connection(mq)
     else:
         print(f'User {user["username"]} {user["id"]} does not exist!')
 
 close_db_connection(db)
-close_message_queue_connection(mq)
